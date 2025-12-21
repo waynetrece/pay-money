@@ -211,6 +211,11 @@ button {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+button.small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
 button:hover {
   transform: translateY(-1px);
 }
@@ -323,12 +328,12 @@ button:hover {
 
 .table-row {
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr 0.9fr 1.1fr 0.8fr 0.9fr 0.7fr 1fr 1fr;
+  grid-template-columns: 1.2fr 0.8fr 0.9fr 1.1fr 0.8fr 0.9fr 0.7fr 1fr 1fr 0.8fr;
   gap: 10px;
   padding: 12px 0;
   border-bottom: 1px solid var(--stroke);
   align-items: center;
-  min-width: 900px;
+  min-width: 980px;
 }
 
 .table-head {
@@ -370,12 +375,60 @@ button:hover {
   display: inline-block;
 }
 
+.status.upcoming::before {
+  background: var(--accent);
+}
+
+.status.due::before {
+  background: var(--warning);
+}
+
+.status.paid::before {
+  background: var(--success);
+}
+
 .status.overdue::before {
   background: var(--danger);
 }
 
 .amount {
   font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 999px;
+  background: var(--glass);
+  border: 1px solid var(--card-border);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.action-button.small {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+.action-button.danger {
+  color: var(--danger);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+.amount-sub {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-top: 4px;
 }
 
 .note-pill {
@@ -458,9 +511,155 @@ button:hover {
   color: var(--muted);
 }
 
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.history-actions {
+  display: flex;
+  gap: 6px;
+}
+
 .history-title {
   font-size: 13px;
   font-weight: 600;
+}
+
+.history-note {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.modal.is-open {
+  display: flex;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.modal-card {
+  position: relative;
+  z-index: 1;
+  width: min(560px, 92vw);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.icon-button {
+  padding: 8px 14px;
+  border-radius: 999px;
+}
+
+.modal-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.field input,
+.field select {
+  background: var(--glass);
+  border: 1px solid var(--card-border);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.field span {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.field.span-2,
+.modal-actions {
+  grid-column: 1 / -1;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+body[data-view="subscriptions"] .summary-grid,
+body[data-view="subscriptions"] .side-stack {
+  display: none;
+}
+
+body[data-view="subscriptions"] .content-grid {
+  grid-template-columns: 1fr;
+}
+
+body[data-view="payments"] .summary-grid,
+body[data-view="payments"] .table-card,
+body[data-view="payments"] .settings-card,
+body[data-view="payments"] .alerts-card {
+  display: none;
+}
+
+body[data-view="payments"] .content-grid,
+body[data-view="notifications"] .content-grid {
+  grid-template-columns: 1fr;
+}
+
+body[data-view="payments"] .side-stack,
+body[data-view="notifications"] .side-stack {
+  grid-column: 1 / -1;
+}
+
+body[data-view="notifications"] .summary-grid,
+body[data-view="notifications"] .table-card,
+body[data-view="notifications"] .history-card {
+  display: none;
 }
 
 @media (max-width: 1200px) {
@@ -508,6 +707,15 @@ button:hover {
   .top-actions {
     width: 100%;
     flex-wrap: wrap;
+  }
+
+  .modal-form {
+    grid-template-columns: 1fr;
+  }
+
+  .field.span-2,
+  .modal-actions {
+    grid-column: auto;
   }
 
   .card-header {

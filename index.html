@@ -6,7 +6,7 @@
   <title>訂閱提醒 / Subscription Reminders</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body data-view="overview">
   <div class="ambient"></div>
   <div class="glow"></div>
 
@@ -23,19 +23,19 @@
       </div>
 
       <nav class="nav">
-        <button class="nav-item active">
+        <button class="nav-item active" data-section="overview" type="button">
           <span>總覽</span>
           <span class="nav-sub">Overview</span>
         </button>
-        <button class="nav-item">
+        <button class="nav-item" data-section="subscriptions" type="button">
           <span>訂閱清單</span>
           <span class="nav-sub">Subscriptions</span>
         </button>
-        <button class="nav-item">
+        <button class="nav-item" data-section="payments" type="button">
           <span>付款記錄</span>
           <span class="nav-sub">Payment History</span>
         </button>
-        <button class="nav-item">
+        <button class="nav-item" data-section="notifications" type="button">
           <span>通知設定</span>
           <span class="nav-sub">Notifications</span>
         </button>
@@ -55,9 +55,9 @@
           <div class="page-sub">Subscription Overview</div>
         </div>
         <div class="top-actions">
-          <button class="ghost" id="themeToggle">深色模式 / Dark</button>
+          <button class="ghost" id="themeToggle" type="button">深色模式 / Dark</button>
           <button class="ghost">匯出 / Export</button>
-          <button class="primary">+ 新增訂閱</button>
+          <button class="primary" id="addSubscription" type="button">+ 新增訂閱</button>
         </div>
       </header>
 
@@ -104,13 +104,14 @@
               <div>幣別 / Currency</div>
               <div>扣款方式 / Method</div>
               <div>備註 / Note</div>
+              <div>操作 / Actions</div>
             </div>
             <div id="tableBody" class="table-body"></div>
           </div>
         </div>
 
         <div class="side-stack">
-          <div class="card">
+          <div class="card settings-card">
             <div class="card-header">
               <div>
                 <div class="card-title">通知設定</div>
@@ -122,19 +123,26 @@
                 <div class="setting-title">每日寄送時間</div>
                 <div class="setting-sub">Daily send time (Taipei)</div>
               </div>
-              <input class="time-input" type="time" value="09:00">
+              <input class="time-input" id="dailyTime" type="time" value="09:00">
             </div>
             <div class="setting-row">
               <div>
                 <div class="setting-title">收件人</div>
                 <div class="setting-sub">Gmail address</div>
               </div>
-              <input class="text-input" type="email" value="yourname@gmail.com">
+              <input class="text-input" id="recipientEmail" type="email" value="yourname@gmail.com">
             </div>
-            <button class="primary wide">儲存設定</button>
+            <div class="setting-row">
+              <div>
+                <div class="setting-title">USD 匯率</div>
+                <div class="setting-sub">USD → TWD</div>
+              </div>
+              <input class="text-input" id="usdRate" type="number" min="0" step="0.01" placeholder="例如: 31.5">
+            </div>
+            <button class="primary wide" id="saveSettings" type="button">儲存設定</button>
           </div>
 
-          <div class="card">
+          <div class="card alerts-card">
             <div class="card-header">
               <div>
                 <div class="card-title">即將提醒</div>
@@ -144,12 +152,13 @@
             <div id="alerts" class="alert-list"></div>
           </div>
 
-          <div class="card">
+          <div class="card history-card">
             <div class="card-header">
               <div>
                 <div class="card-title">付款記錄</div>
                 <div class="card-sub">Recent Payments</div>
               </div>
+              <button class="ghost small" id="addPayment" type="button">+ 新增付款</button>
             </div>
             <div class="history-list" id="history"></div>
             <button class="ghost wide">查看全部記錄</button>
@@ -157,6 +166,119 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <div class="modal" id="subscriptionModal" aria-hidden="true">
+    <div class="modal-backdrop" data-modal-close></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="modalTitle">新增訂閱</div>
+          <div class="modal-sub">Add Subscription</div>
+        </div>
+        <button class="ghost icon-button" type="button" data-modal-close>關閉</button>
+      </div>
+      <form class="modal-form" id="subscriptionForm">
+        <label class="field span-2">
+          <span>平台名稱</span>
+          <input type="text" name="platform" placeholder="例如: Dropbox" required>
+        </label>
+        <label class="field">
+          <span>付款型態</span>
+          <select name="billing" required>
+            <option value="monthly">月繳 / Monthly</option>
+            <option value="yearly">年繳 / Yearly</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>起始日</span>
+          <input type="date" name="startDate" required>
+        </label>
+        <label class="field">
+          <span>金額</span>
+          <input type="number" name="amount" min="0" step="0.01" required>
+        </label>
+        <label class="field">
+          <span>幣別</span>
+          <select name="currency">
+            <option value="TWD">TWD</option>
+            <option value="USD">USD</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>扣款方式</span>
+          <select name="method">
+            <option value="Credit Card">信用卡 / Credit Card</option>
+            <option value="Debit Card">金融卡 / Debit Card</option>
+            <option value="Bank Transfer">轉帳 / Bank Transfer</option>
+            <option value="Cash">現金 / Cash</option>
+            <option value="Apple Pay">Apple Pay</option>
+            <option value="Google Pay">Google Pay</option>
+          </select>
+        </label>
+        <label class="field span-2">
+          <span>備註</span>
+          <input type="text" name="note" placeholder="例如: 原始日為 31 號">
+        </label>
+        <div class="modal-actions">
+          <button class="ghost" type="button" data-modal-close>取消</button>
+          <button class="primary" type="submit">新增訂閱</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="paymentModal" aria-hidden="true">
+    <div class="modal-backdrop" data-payment-close></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="paymentModalTitle">新增付款</div>
+          <div class="modal-sub">Add Payment</div>
+        </div>
+        <button class="ghost icon-button" type="button" data-payment-close>關閉</button>
+      </div>
+      <form class="modal-form" id="paymentForm">
+        <label class="field span-2">
+          <span>訂閱平台</span>
+          <select name="subscriptionId" required></select>
+        </label>
+        <label class="field">
+          <span>付款日期</span>
+          <input type="date" name="date" required>
+        </label>
+        <label class="field">
+          <span>金額</span>
+          <input type="number" name="amount" min="0" step="0.01" required>
+        </label>
+        <label class="field">
+          <span>幣別</span>
+          <select name="currency">
+            <option value="TWD">TWD</option>
+            <option value="USD">USD</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>扣款方式</span>
+          <select name="method">
+            <option value="Credit Card">信用卡 / Credit Card</option>
+            <option value="Debit Card">金融卡 / Debit Card</option>
+            <option value="Bank Transfer">轉帳 / Bank Transfer</option>
+            <option value="Cash">現金 / Cash</option>
+            <option value="Apple Pay">Apple Pay</option>
+            <option value="Google Pay">Google Pay</option>
+          </select>
+        </label>
+        <label class="field span-2">
+          <span>備註</span>
+          <input type="text" name="note" placeholder="例如: 優惠序號">
+        </label>
+        <div class="modal-actions">
+          <button class="ghost" type="button" data-payment-close>取消</button>
+          <button class="primary" type="submit">新增付款</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="app.js"></script>
