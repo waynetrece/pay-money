@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>訂閱提醒 / Subscription Reminders</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient"></div>
+  <div class="glow"></div>
+
+  <div class="app" id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">
+          <span class="brand-dot"></span>
+        </div>
+        <div>
+          <div class="brand-title">SubPulse</div>
+          <div class="brand-sub">訂閱提醒 / Subscription</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active">
+          <span>總覽</span>
+          <span class="nav-sub">Overview</span>
+        </button>
+        <button class="nav-item">
+          <span>訂閱清單</span>
+          <span class="nav-sub">Subscriptions</span>
+        </button>
+        <button class="nav-item">
+          <span>付款記錄</span>
+          <span class="nav-sub">Payment History</span>
+        </button>
+        <button class="nav-item">
+          <span>通知設定</span>
+          <span class="nav-sub">Notifications</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer card">
+        <div class="footer-title">提醒模式</div>
+        <div class="footer-sub">7 天 / 3 天 / 當天</div>
+        <button class="ghost wide">查看通知範本</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="page-title">訂閱儀表板</div>
+          <div class="page-sub">Subscription Overview</div>
+        </div>
+        <div class="top-actions">
+          <button class="ghost" id="themeToggle">深色模式 / Dark</button>
+          <button class="ghost">匯出 / Export</button>
+          <button class="primary">+ 新增訂閱</button>
+        </div>
+      </header>
+
+      <section class="summary-grid">
+        <div class="card summary">
+          <div class="summary-label">本月總額 / Monthly Total</div>
+          <div class="summary-value" id="monthlyTotal">NT$0</div>
+          <div class="summary-foot">含月繳與年繳均攤</div>
+        </div>
+        <div class="card summary">
+          <div class="summary-label">下一次扣款 / Next Charge</div>
+          <div class="summary-value" id="nextCharge">--/--</div>
+          <div class="summary-foot" id="nextChargeMeta">--</div>
+        </div>
+        <div class="card summary">
+          <div class="summary-label">年繳支出 / Annual Total</div>
+          <div class="summary-value" id="annualTotal">NT$0</div>
+          <div class="summary-foot">即將到期項目</div>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <div class="card table-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">訂閱清單</div>
+              <div class="card-sub">Subscriptions</div>
+            </div>
+            <div class="chip-group" role="tablist">
+              <button class="chip active" data-filter="all">全部 / All</button>
+              <button class="chip" data-filter="monthly">月繳 / Monthly</button>
+              <button class="chip" data-filter="yearly">年繳 / Yearly</button>
+            </div>
+          </div>
+
+          <div class="table">
+            <div class="table-row table-head">
+              <div>平台 / Platform</div>
+              <div>型態 / Billing</div>
+              <div>起始日 / Start</div>
+              <div>下一次扣款 / Next Charge</div>
+              <div>狀態 / Status</div>
+              <div>金額 / Amount</div>
+              <div>幣別 / Currency</div>
+              <div>扣款方式 / Method</div>
+              <div>備註 / Note</div>
+            </div>
+            <div id="tableBody" class="table-body"></div>
+          </div>
+        </div>
+
+        <div class="side-stack">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">通知設定</div>
+                <div class="card-sub">Notification Time</div>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-title">每日寄送時間</div>
+                <div class="setting-sub">Daily send time (Taipei)</div>
+              </div>
+              <input class="time-input" type="time" value="09:00">
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-title">收件人</div>
+                <div class="setting-sub">Gmail address</div>
+              </div>
+              <input class="text-input" type="email" value="yourname@gmail.com">
+            </div>
+            <button class="primary wide">儲存設定</button>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">即將提醒</div>
+                <div class="card-sub">Upcoming Alerts</div>
+              </div>
+            </div>
+            <div id="alerts" class="alert-list"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">付款記錄</div>
+                <div class="card-sub">Recent Payments</div>
+              </div>
+            </div>
+            <div class="history-list" id="history"></div>
+            <button class="ghost wide">查看全部記錄</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
