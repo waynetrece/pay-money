@@ -44,7 +44,7 @@
       <div class="sidebar-footer card">
         <div class="footer-title">提醒模式</div>
         <div class="footer-sub">7 天 / 3 天 / 當天</div>
-        <button class="ghost wide">查看通知範本</button>
+        <button class="ghost wide" id="showReminderTemplates" type="button">查看通知範本</button>
       </div>
     </aside>
 
@@ -56,7 +56,7 @@
         </div>
         <div class="top-actions">
           <button class="ghost" id="themeToggle" type="button">深色模式 / Dark</button>
-          <button class="ghost">匯出 / Export</button>
+          <button class="ghost" id="exportData" type="button">匯出 / Export</button>
           <button class="primary" id="addSubscription" type="button">+ 新增訂閱</button>
         </div>
       </header>
@@ -161,7 +161,7 @@
               <button class="ghost small" id="addPayment" type="button">+ 新增付款</button>
             </div>
             <div class="history-list" id="history"></div>
-            <button class="ghost wide">查看全部記錄</button>
+            <button class="ghost wide" id="viewAllPayments" type="button">查看全部記錄</button>
           </div>
         </div>
       </section>
@@ -278,6 +278,36 @@
           <button class="primary" type="submit">新增付款</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div class="modal" id="reminderModal" aria-hidden="true">
+    <div class="modal-backdrop" data-reminder-close></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="reminderModalTitle">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="reminderModalTitle">通知範本</div>
+          <div class="modal-sub">Reminder Templates</div>
+        </div>
+        <button class="ghost icon-button" type="button" data-reminder-close>關閉</button>
+      </div>
+      <div class="template-grid">
+        <div class="template-card">
+          <div class="template-title">7 天提醒</div>
+          <textarea class="template-input" data-template-key="seven" rows="4"></textarea>
+        </div>
+        <div class="template-card">
+          <div class="template-title">3 天提醒</div>
+          <textarea class="template-input" data-template-key="three" rows="4"></textarea>
+        </div>
+        <div class="template-card">
+          <div class="template-title">當天提醒</div>
+          <textarea class="template-input" data-template-key="sameDay" rows="4"></textarea>
+        </div>
+      </div>
+      <div class="template-actions">
+        <button class="primary" id="saveTemplates" type="button">儲存範本</button>
+      </div>
     </div>
   </div>
 

@@ -64,7 +64,12 @@ const defaultSubscriptions = [
 const defaultSettings = {
   dailyTime: "09:00",
   recipientEmail: "yourname@gmail.com",
-  usdRate: 31.5
+  usdRate: 31.5,
+  reminderTemplates: {
+    seven: "您的訂閱即將在 7 天後扣款。請確認付款方式與金額。",
+    three: "距離扣款日還有 3 天，提醒您留意帳單與餘額。",
+    sameDay: "今天是扣款日，若付款失敗請儘速更新付款方式。"
+  }
 };
 
 const defaultPaymentHistory = [
@@ -126,10 +131,10 @@ const billingLabels = {
 };
 
 const statusLabels = {
-  paid: "Paid",
-  due: "Due",
-  upcoming: "Upcoming",
-  overdue: "Overdue"
+  paid: "已繳費",
+  due: "今日到期",
+  upcoming: "即將到期",
+  overdue: "已逾期"
 };
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -156,6 +161,9 @@ const pageTitle = document.querySelector(".page-title");
 const pageSub = document.querySelector(".page-sub");
 const addSubscriptionButton = document.getElementById("addSubscription");
 const addPaymentButton = document.getElementById("addPayment");
+const exportButton = document.getElementById("exportData");
+const reminderButton = document.getElementById("showReminderTemplates");
+const viewAllPaymentsButton = document.getElementById("viewAllPayments");
 const subscriptionModal = document.getElementById("subscriptionModal");
 const subscriptionForm = document.getElementById("subscriptionForm");
 const modalTitle = document.getElementById("modalTitle");
@@ -163,6 +171,11 @@ const modalSubmitButton = subscriptionForm
   ? subscriptionForm.querySelector('button[type="submit"]')
   : null;
 const paymentModal = document.getElementById("paymentModal");
+const reminderModal = document.getElementById("reminderModal");
+const reminderTemplateInputs = reminderModal
+  ? reminderModal.querySelectorAll("[data-template-key]")
+  : [];
+const saveTemplatesButton = document.getElementById("saveTemplates");
 const paymentForm = document.getElementById("paymentForm");
 const paymentModalTitle = document.getElementById("paymentModalTitle");
 const paymentSubmitButton = paymentForm
@@ -185,6 +198,9 @@ setupNavigation();
 setupModal();
 setupPaymentModal();
 setupPaymentActions();
+setupReminderModal();
+setupExport();
+setupViewAllPayments();
 setupSettings();
 setupRowActions();
 
@@ -252,7 +268,7 @@ function computeNextCharge(subscription, now) {
   }
 
   const lastDay = daysInMonth(candidate.getFullYear(), candidate.getMonth());
-  const note = originalDay > lastDay ? `Original day: ${originalDay}` : "";
+  const note = originalDay > lastDay ? `原始日: ${originalDay}` : "";
   return { next: candidate, last, note, start };
 }
 
@@ -281,12 +297,12 @@ function formatRate(rate) {
 
 function formatDaysUntil(days) {
   if (days < 0) {
-    return `${Math.abs(days)} days overdue`;
+    return `逾期 ${Math.abs(days)} 天`;
   }
   if (days === 0) {
-    return "due today";
+    return "今天到期";
   }
-  return `in ${days} days`;
+  return `還有 ${days} 天`;
 }
 
 function escapeHtml(value) {
@@ -402,6 +418,60 @@ function saveSettings() {
   } catch (error) {
     console.warn("Failed to save settings", error);
   }
+}
+
+function getReminderTemplates() {
+  return settings.reminderTemplates || defaultSettings.reminderTemplates;
+}
+
+function fillReminderTemplates() {
+  if (!reminderTemplateInputs.length) {
+    return;
+  }
+
+  const templates = getReminderTemplates();
+  reminderTemplateInputs.forEach((input) => {
+    const key = input.dataset.templateKey;
+    if (!key) {
+      return;
+    }
+    input.value = templates[key] || "";
+  });
+}
+
+function saveReminderTemplates() {
+  if (!reminderTemplateInputs.length) {
+    return;
+  }
+
+  const templates = {};
+  reminderTemplateInputs.forEach((input) => {
+    const key = input.dataset.templateKey;
+    if (!key) {
+      return;
+    }
+    templates[key] = input.value.trim();
+  });
+  settings = {
+    ...settings,
+    reminderTemplates: {
+      ...defaultSettings.reminderTemplates,
+      ...templates
+    }
+  };
+  saveSettings();
+}
+
+function downloadFile(content, filename, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
 
 function getExchangeRate(item) {
@@ -698,8 +768,8 @@ function renderAlerts(items) {
   if (!alertItems.length) {
     alertsList.innerHTML = `
       <div class="alert-item">
-        <div class="alert-title">No alerts today</div>
-        <div class="alert-sub">You are all caught up.</div>
+        <div class="alert-title">今日無提醒</div>
+        <div class="alert-sub">目前沒有需要通知的訂閱。</div>
       </div>
     `;
     return;
@@ -734,8 +804,8 @@ function renderHistory(items) {
   if (!items.length) {
     historyList.innerHTML = `
       <div class="history-item">
-        <div class="history-title">No payment records yet</div>
-        <div class="history-sub">Add a payment to get started.</div>
+        <div class="history-title">尚無付款記錄</div>
+        <div class="history-sub">新增付款後會顯示在這裡。</div>
       </div>
     `;
     return;
@@ -943,8 +1013,6 @@ function setupNavigation() {
 
   navItems.forEach((item) => {
     item.addEventListener("click", () => {
-      navItems.forEach((nav) => nav.classList.remove("active"));
-      item.classList.add("active");
       const section = item.dataset.section || "overview";
       setView(section);
     });
@@ -952,13 +1020,6 @@ function setupNavigation() {
 
   const initialView = document.body.dataset.view || "overview";
   setView(initialView);
-  const activeItem = Array.from(navItems).find(
-    (item) => item.dataset.section === initialView
-  );
-  if (activeItem) {
-    navItems.forEach((nav) => nav.classList.remove("active"));
-    activeItem.classList.add("active");
-  }
 }
 
 function setView(view) {
@@ -989,6 +1050,17 @@ function setView(view) {
   if (pageSub) {
     pageSub.textContent = meta.sub;
   }
+  updateNavActive(view);
+}
+
+function updateNavActive(view) {
+  if (!navItems.length) {
+    return;
+  }
+
+  navItems.forEach((item) => {
+    item.classList.toggle("active", item.dataset.section === view);
+  });
 }
 
 function setupModal() {
@@ -1111,6 +1183,69 @@ function setupPaymentModal() {
       applySubscriptionDefaults(selected, fields, false);
     });
   }
+}
+
+function setupReminderModal() {
+  if (!reminderModal || !reminderButton) {
+    return;
+  }
+
+  const closeButtons = reminderModal.querySelectorAll("[data-reminder-close]");
+  closeButtons.forEach((button) => {
+    button.addEventListener("click", closeReminderModal);
+  });
+
+  reminderButton.addEventListener("click", openReminderModal);
+  if (saveTemplatesButton) {
+    saveTemplatesButton.addEventListener("click", () => {
+      saveReminderTemplates();
+    });
+  }
+}
+
+function openReminderModal() {
+  if (!reminderModal) {
+    return;
+  }
+  fillReminderTemplates();
+  reminderModal.classList.add("is-open");
+  reminderModal.setAttribute("aria-hidden", "false");
+}
+
+function closeReminderModal() {
+  if (!reminderModal) {
+    return;
+  }
+  reminderModal.classList.remove("is-open");
+  reminderModal.setAttribute("aria-hidden", "true");
+}
+
+function setupExport() {
+  if (!exportButton) {
+    return;
+  }
+
+  exportButton.addEventListener("click", () => {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      settings,
+      subscriptions,
+      payments: paymentHistory
+    };
+    const filename = `subpulse_export_${new Date().toISOString().slice(0, 10)}.json`;
+    downloadFile(`${JSON.stringify(payload, null, 2)}\n`, filename, "application/json");
+  });
+}
+
+function setupViewAllPayments() {
+  if (!viewAllPaymentsButton) {
+    return;
+  }
+
+  viewAllPaymentsButton.addEventListener("click", () => {
+    setView("payments");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
 }
 
 function openPaymentModal(payment) {

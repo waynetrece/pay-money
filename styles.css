@@ -630,6 +630,44 @@ button:hover {
   margin-top: 8px;
 }
 
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.template-card {
+  background: var(--glass);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+
+.template-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.template-input {
+  margin-top: 8px;
+  width: 100%;
+  resize: vertical;
+  background: var(--glass);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.template-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
 body[data-view="subscriptions"] .summary-grid,
 body[data-view="subscriptions"] .side-stack {
   display: none;
