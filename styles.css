@@ -412,6 +412,7 @@ button:hover {
   border: 1px solid var(--card-border);
   color: var(--text);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .action-button.small {
@@ -475,6 +476,15 @@ button:hover {
   padding: 8px 10px;
 }
 
+.text-area {
+  background: var(--glass);
+  border: 1px solid var(--card-border);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px;
+  resize: vertical;
+}
+
 .alert-list,
 .history-list {
   display: flex;
@@ -502,6 +512,13 @@ button:hover {
   margin-top: 4px;
 }
 
+.alert-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .alert-meta {
   margin-top: 8px;
   display: flex;
@@ -521,17 +538,85 @@ button:hover {
 .history-actions {
   display: flex;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .history-title {
   font-size: 13px;
   font-weight: 600;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.status-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.status-toggle {
+  display: inline-flex;
+  gap: 6px;
+  background: var(--glass);
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  padding: 2px;
+}
+
+.status-toggle-button {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.status-toggle-button.is-active {
+  background: var(--card-bg);
+  color: var(--text);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
 }
 
 .history-note {
   font-size: 11px;
   color: var(--muted);
   margin-top: 6px;
+}
+
+.log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.log-item {
+  background: var(--glass);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.log-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.log-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.log-meta {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .modal {
@@ -668,6 +753,54 @@ button:hover {
   margin-top: 16px;
 }
 
+.import-hint {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.import-meta {
+  font-size: 12px;
+  color: var(--text);
+  background: var(--glass);
+  border: 1px dashed var(--stroke);
+  padding: 8px 10px;
+  border-radius: 12px;
+}
+
+.import-preview {
+  max-height: 220px;
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  background: var(--glass);
+}
+
+.import-empty {
+  padding: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.preview-table th,
+.preview-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--stroke);
+}
+
+.preview-table th {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
 body[data-view="subscriptions"] .summary-grid,
 body[data-view="subscriptions"] .side-stack {
   display: none;
@@ -680,7 +813,8 @@ body[data-view="subscriptions"] .content-grid {
 body[data-view="payments"] .summary-grid,
 body[data-view="payments"] .table-card,
 body[data-view="payments"] .settings-card,
-body[data-view="payments"] .alerts-card {
+body[data-view="payments"] .alerts-card,
+body[data-view="payments"] .log-card {
   display: none;
 }
 
@@ -697,6 +831,11 @@ body[data-view="notifications"] .side-stack {
 body[data-view="notifications"] .summary-grid,
 body[data-view="notifications"] .table-card,
 body[data-view="notifications"] .history-card {
+  display: none;
+}
+
+body[data-view="overview"] .log-card,
+body[data-view="subscriptions"] .log-card {
   display: none;
 }
 

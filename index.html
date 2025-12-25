@@ -57,6 +57,7 @@
         <div class="top-actions">
           <button class="ghost" id="themeToggle" type="button">深色模式 / Dark</button>
           <button class="ghost" id="exportData" type="button">匯出 / Export</button>
+          <button class="ghost" id="importData" type="button">匯入 / Import</button>
           <button class="primary" id="addSubscription" type="button">+ 新增訂閱</button>
         </div>
       </header>
@@ -94,12 +95,12 @@
           </div>
 
           <div class="table">
-            <div class="table-row table-head">
+              <div class="table-row table-head">
               <div>平台 / Platform</div>
               <div>型態 / Billing</div>
               <div>起始日 / Start</div>
               <div>下一次扣款 / Next Charge</div>
-              <div>狀態 / Status</div>
+              <div>付款狀態 / Status</div>
               <div>金額 / Amount</div>
               <div>幣別 / Currency</div>
               <div>扣款方式 / Method</div>
@@ -145,11 +146,21 @@
           <div class="card alerts-card">
             <div class="card-header">
               <div>
-                <div class="card-title">即將提醒</div>
-                <div class="card-sub">Upcoming Alerts</div>
+                <div class="card-title">寄送佇列</div>
+                <div class="card-sub">Delivery Queue</div>
               </div>
             </div>
             <div id="alerts" class="alert-list"></div>
+          </div>
+
+          <div class="card log-card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">通知紀錄</div>
+                <div class="card-sub">Delivery Log</div>
+              </div>
+            </div>
+            <div id="notificationLog" class="log-list"></div>
           </div>
 
           <div class="card history-card">
@@ -308,6 +319,47 @@
       <div class="template-actions">
         <button class="primary" id="saveTemplates" type="button">儲存範本</button>
       </div>
+    </div>
+  </div>
+
+  <div class="modal" id="importModal" aria-hidden="true">
+    <div class="modal-backdrop" data-import-close></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="importModalTitle">匯入資料</div>
+          <div class="modal-sub">Import Data</div>
+        </div>
+        <button class="ghost icon-button" type="button" data-import-close>關閉</button>
+      </div>
+      <form class="modal-form" id="importForm">
+        <label class="field span-2">
+          <span>匯入類型</span>
+          <select name="importType">
+            <option value="subscriptions">訂閱清單 (CSV/JSON)</option>
+            <option value="payments">付款記錄 (CSV/JSON)</option>
+            <option value="json">完整 JSON 匯入</option>
+          </select>
+        </label>
+        <label class="field span-2">
+          <span>上傳檔案</span>
+          <input type="file" name="importFile" accept=".csv,.json,text/csv,application/json">
+        </label>
+        <label class="field span-2">
+          <span>或貼上內容</span>
+          <textarea class="text-area" name="importText" rows="6" placeholder="貼上 CSV 或 JSON 內容"></textarea>
+        </label>
+        <div class="import-hint span-2" id="importHint">
+          CSV 欄位建議：訂閱 = platform,billing,startDate,amount,currency,method,note ／ 付款 = platform,date,amount,currency,method,note
+        </div>
+        <div class="import-meta span-2" id="importMeta">尚未解析資料</div>
+        <div class="import-preview span-2" id="importPreview"></div>
+        <div class="modal-actions">
+          <button class="ghost" type="button" data-import-close>取消</button>
+          <button class="ghost" type="button" id="previewImport">解析/預覽</button>
+          <button class="primary" type="submit" id="confirmImport" disabled>開始匯入</button>
+        </div>
+      </form>
     </div>
   </div>
 
